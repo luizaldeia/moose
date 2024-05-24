@@ -37,17 +37,11 @@ protected:
   /// Specific volume
   ADMaterialProperty<Real> & _v;
 
-  /// Mixture specific volume
-  ADMaterialProperty<Real> & _v_m;
-
   /// Velocity
   ADMaterialProperty<Real> & _vel;
 
   /// Specific internal energy
   ADMaterialProperty<Real> & _e;
-
-  /// Mixture specific internal energy
-  ADMaterialProperty<Real> & _e_m;
 
   /// Pressure
   ADMaterialProperty<Real> & _p;
@@ -72,6 +66,9 @@ protected:
 
   /// Thermal conductivity
   ADMaterialProperty<Real> & _k;
+
+  /// Thermal conductivity
+  ADMaterialProperty<Real> & _alpha;
 
   /// Fluid properties
   const HEM & _fp;

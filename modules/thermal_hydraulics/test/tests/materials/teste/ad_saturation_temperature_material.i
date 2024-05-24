@@ -1,3 +1,34 @@
+
+# #Liquid Phase
+# rhoA = 1380.730951
+# rhouA = 4142.192854
+# rhoEA = 1893137638
+
+# #Vapor Phase
+# rhoA = 115.5336911
+# rhouA = 346.6010734
+# rhoEA = 306626936.1
+
+#Mixture Phase
+rhoA = 1001.171773
+rhouA = 3003.51532
+rhoEA = 1758037797
+
+[Variables]
+  [A]
+    initial_condition = 2
+  []
+  [rhoA]
+    initial_condition = ${rhoA}
+  []
+  [rhouA]
+    initial_condition = ${rhouA}
+  []
+  [rhoEA]
+    initial_condition = ${rhoEA}
+  []
+[]
+
 [FluidProperties]
   [fp_2phase]
     type = StiffenedGasTwoPhaseFluidProperties
@@ -5,7 +36,6 @@
   [fp]
     type = HEM
     fp_2phase = fp_2phase
-    alpha = 1
   []
 []
 [Mesh]
@@ -16,21 +46,13 @@
 []
 
 [Materials]
-  [temperature]
-    type = ADConstantMaterial
-    property_name = temperature
-    value = 600
-  []
-  [pressure]
-    type = ADConstantMaterial
-    property_name = pressure
-    value = 15.5e+6
-  []
   [const_mpropsat]
     type = ADFluidPropertiesHEM3EqnMaterial
     fp = fp
-    T = temperature
-    p = pressure
+    A = A
+    rhoA = rhoA
+    rhouA = rhouA
+    rhoEA = rhoEA
   []
 []
 
@@ -75,6 +97,10 @@
      type = ADElementAverageMaterialProperty
      mat_prop = cv
    []
+   [i_alpha_mixture]
+    type = ADElementAverageMaterialProperty
+    mat_prop = alpha
+  []
  []
 
 [Outputs]

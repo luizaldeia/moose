@@ -78,7 +78,8 @@ HEM::rho_vapor_from_p_T(ADReal p, ADReal T) const
 ADReal
 HEM::v_mixture_from_p_T(ADReal p, ADReal T, ADReal alpha) const
 {
-  return (1 - alpha) / _fp_liquid.rho_from_p_T(p, T) + alpha / _fp_vapor.rho_from_p_T(p, T);
+  // return (1 - alpha) / _fp_liquid.rho_from_p_T(p, T) + alpha / _fp_vapor.rho_from_p_T(p, T);
+  return 1 / rho_mixture_from_p_T(p, T, alpha);
 }
 
 // Liquid phase specific volume from pressure and temperature
@@ -114,6 +115,27 @@ ADReal
 HEM::e_vapor_from_p_T(ADReal p, ADReal T) const
 {
   return _fp_vapor.e_from_p_T(p, T);
+}
+
+// Mixture specific enthalpy from pressure and temperature
+ADReal
+HEM::h_mixture_from_p_T(ADReal p, ADReal T, ADReal alpha) const
+{
+  return (1 - alpha) * (_fp_liquid.h_from_p_T(p, T)) + alpha * (_fp_vapor.h_from_p_T(p, T));
+}
+
+// Liquid phase specific enthalpy from pressure and temperature
+ADReal
+HEM::h_liquid_from_p_T(ADReal p, ADReal T) const
+{
+  return _fp_liquid.h_from_p_T(p, T);
+}
+
+// Vapor phase specific enthalpy from pressure and temperature
+ADReal
+HEM::h_vapor_from_p_T(ADReal p, ADReal T) const
+{
+  return _fp_vapor.h_from_p_T(p, T);
 }
 
 // Mixture specific entropy from pressure and temperature

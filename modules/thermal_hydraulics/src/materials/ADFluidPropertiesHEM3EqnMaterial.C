@@ -91,7 +91,7 @@ ADFluidPropertiesHEM3EqnMaterial::computeQpProperties()
   _e[_qp] = (_rhoEA[_qp] - 0.5 * _rhouA[_qp] * _rhouA[_qp] / _rhoA[_qp]) / _rhoA[_qp];
 
   // Initiating the tolerances for v and e
-  double tol_v = 1E-4;
+  // double tol_v = 1E-4;
   double tol_e = 1E-4;
 
   // Initiating the errors for v and e.
@@ -125,11 +125,11 @@ ADFluidPropertiesHEM3EqnMaterial::computeQpProperties()
     alpha = (_rho[_qp] - rho_lsat) / (rho_vsat - rho_lsat);
     std::cout << "alpha -----> " << alpha.value() << "\n";
 
-    if (alpha < 5E-3)
+    if (alpha < 1E-2)
     {
       alpha = 0.0;
     }
-    else if (alpha > 1)
+    else if (alpha > 0.99)
     {
       alpha = 1.0;
     }
@@ -219,34 +219,66 @@ ADFluidPropertiesHEM3EqnMaterial::computeQpProperties()
 
       // The mixture will be at T_guess
       T_m = T_guess;
+      ADReal T_guess_old = T_m;
 
       // Calculating the mixture specific volume as a function of Psat and T_guest.
-      v_m = _fp.v_mixture_from_p_T(Psat, T_guess, alpha);
+      v_m = _fp.v_mixture_from_p_T(p_m, T_m, alpha);
 
       // Calculating the mixture internal energy as a function of Psat and T_guest.
-      e_m = _fp.e_mixture_from_p_T(Psat, T_guess, alpha);
+      e_m = _fp.e_mixture_from_p_T(p_m, T_m, alpha);
 
       // Calculating the new mixture temperature (for the mixture both phases, liquid and vapor,
       // should have the same temperature).
-      // T_m = _fp.T_liquid_from_v_e(v_m, e_m);
+      ADReal T_v = _fp.T_vapor_from_v_e(v_m, e_m);
+      ADReal T_l = _fp.T_liquid_from_v_e(v_m, e_m);
+      ADReal dT = std::abs(T_l - T_v);
 
-      ADReal C = (rand() % 10 + 1) / 1000.0;
-      T_guess = (1.0 + C) * T_guess;
+      // if (T_v > 273 && T_l > 273)
+      // {
+      //   T_guess = 0.5 * (T_v + T_l);
+      //   std::cout << "T_v and T_l > 0\n";
+      // }
+      // else if (T_v > 273)
+      // {
+      //   T_guess = 0.5 * (T_guess + T_v);
+      //   std::cout << "T_v > 0\n";
+      // }
+      // else if (T_l > 273)
+      // {
+      //   T_guess = 0.5 * (T_guess + T_l);
+      //   std::cout << "T_l > 0\n";
+      // }
+      // else
+      // {
+      // ADReal C = (rand() % 10 + 1) / 1000.0;
+      T_guess *= (1.001);
+      // std::cout << "T_v and T_l < 0\n";
+      // }
+
+      // if (std::abs(T_guess - T_guess_old) < 1E-4)
+      // {
+      //   T_guess *= 1.05;
+      //   std::cout << "passei aqui\n";
+      // }
 
       if (T_guess > 1000)
       {
         T_guess = 0.25 * (T_guess);
+        std::cout << "T_guess > 1000\n";
       }
 
       std::cout << "p_m -------> " << p_m.value() << "\n";
       std::cout << "T_m -------> " << T_m.value() << "\n";
+      std::cout << "T_v -------> " << T_v.value() << "\n";
+      std::cout << "T_l -------> " << T_l.value() << "\n";
+      std::cout << "dT -------> " << dT.value() << "\n";
       std::cout << "v_m -------> " << v_m.value() << "\n";
       std::cout << "e_m -------> " << e_m.value() << "\n";
       std::cout << "alpha -----> " << alpha.value() << "\n";
       std::cout << "T_guess ---> " << T_guess.value() << "\n";
       std::cout << "======================================================== \n";
     }
-    if (it >= 10)
+    if (it >= 10000000)
     {
       mooseError("The maximum number of iterations was reached while trying to determine the "
                  "fluid state");

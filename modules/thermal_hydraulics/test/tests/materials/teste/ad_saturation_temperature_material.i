@@ -2,12 +2,12 @@
 # #Liquid Phase
 # rhoA = 1380.730951
 # rhouA = 4142.192854
-# rhoEA = 1893137638
+# rhoEA = 1893131424.3866400
 
 # #Mixture Phase alpha = 0.1
 # rhoA = 1304.771546
 # rhouA = 3914.314639
-# rhoEA = 1837727051
+# rhoEA = 1676971885.4761200
 
 # #Mixture Phase alpha = 0.2
 # rhoA = 1173.151501
@@ -39,10 +39,10 @@
 # rhouA = 1545.15382
 # rhoEA = 1144807062
 
-# #Mixture Phase alpha = 0.8
-# rhoA = 383.4312278
-# rhouA = 1150.293683
-# rhoEA = 904288601.6
+#Mixture Phase alpha = 0.8
+rhoA = 383.4312278
+rhouA = 1150.293683
+rhoEA = 618501641.3609560
 
 # #Mixture Phase alpha = 0.9
 # rhoA = 251.8111822
@@ -54,10 +54,10 @@
 # rhouA = 346.6010734
 # rhoEA = 306626936.1
 
-#teste
-rhoA = 1254.211225
-rhouA = 3762.633676
-rhoEA = 1880566583
+# #teste
+# rhoA = 1254.211225
+# rhouA = 3762.633676
+# rhoEA = 1880566583
 
 [Variables]
   [A]
@@ -86,7 +86,7 @@ rhoEA = 1880566583
 [Mesh]
   type = GeneratedMesh
   dim = 1
-  nx = 1
+  nx = 10
   allow_renumbering = false
 []
 

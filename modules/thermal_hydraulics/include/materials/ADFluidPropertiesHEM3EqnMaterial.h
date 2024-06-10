@@ -67,7 +67,7 @@ protected:
   /// Thermal conductivity
   ADMaterialProperty<Real> & _k;
 
-  /// Thermal conductivity
+  /// Void fraction
   ADMaterialProperty<Real> & _alpha;
 
   /// Fluid properties

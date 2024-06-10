@@ -22,6 +22,7 @@
 #include "SinglePhaseFluidProperties.h"
 #include "TwoPhaseFluidProperties.h"
 #include "TwoPhaseNCGFluidProperties.h"
+#include "HEM.h"
 
 std::map<THM::FlowModelID, std::string> ThermalHydraulicsApp::_flow_model_map;
 
@@ -43,6 +44,7 @@ FlowModelID FM_INVALID = registerFlowModelID();
 FlowModelID FM_SINGLE_PHASE = registerFlowModelID();
 FlowModelID FM_TWO_PHASE = registerFlowModelID();
 FlowModelID FM_TWO_PHASE_NCG = registerFlowModelID();
+FlowModelID FM_HEM = registerFlowModelID();
 
 } // namespace THM
 
@@ -105,6 +107,7 @@ ThermalHydraulicsApp::registerAll(Factory & f, ActionFactory & af, Syntax & s)
 
   // flow models
   registerFlowModel(THM::FM_SINGLE_PHASE, FlowModelSinglePhase);
+  registerFlowModel(THM::FM_HEM, FlowModelHEM);
 }
 
 const std::string &

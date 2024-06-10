@@ -166,6 +166,24 @@ public:
   virtual ADReal e_vapor_from_p_T(ADReal p, ADReal T) const;
 
   /**
+   * Liquid phase internal energy from pressure and density
+   *
+   * @param[in] p     pressure
+   * @param[in] rho   density
+   * @return          liquid phase density
+   */
+  virtual ADReal e_liquid_from_p_rho(ADReal p, ADReal rho) const;
+
+  /**
+   * Vapor phase internal energy from pressure and density
+   *
+   * @param[in] p     pressure
+   * @param[in] rho   density
+   * @return          vapor phase density
+   */
+  virtual ADReal e_vapor_from_p_rho(ADReal p, ADReal rho) const;
+
+  /**
    * Mixture specific enthalpy from pressure and temperature
    *
    * @param[in] p       pressure
@@ -368,6 +386,33 @@ public:
    * @return        vapor phase temperature
    */
   virtual ADReal T_vapor_from_v_e(ADReal v, ADReal e) const;
+
+  /**
+   * Mixture dynamic viscosity from specific volume and internal energy
+   *
+   * @param[in] p   pressure
+   * @param[in] T   temperature
+   * @return        Mixture dynamic viscosity
+   */
+  virtual ADReal mu_mixture_from_p_T(ADReal p, ADReal T, ADReal alpha) const;
+
+  /**
+   * Liquid phase dynamic viscosity from specific volume and internal energy
+   *
+   * @param[in] v   specific volume
+   * @param[in] e   internal energy
+   * @return        liquid phase dynamic viscosity
+   */
+  virtual ADReal mu_liquid_from_v_e(ADReal v, ADReal e) const;
+
+  /**
+   * Vapor phase dynamic viscosity from specific volume and internal energy
+   *
+   * @param[in] v   specific volume
+   * @param[in] e   internal energy
+   * @return        vapor phase dynamic viscosity
+   */
+  virtual ADReal mu_vapor_from_v_e(ADReal v, ADReal e) const;
 };
 
 #pragma GCC diagnostic pop

@@ -9,6 +9,7 @@
 
 #include "InletMassFlowRateTemperature1Phase.h"
 #include "FlowModelSinglePhase.h"
+#include "FlowModelHEM.h"
 
 registerMooseObject("ThermalHydraulicsApp", InletMassFlowRateTemperature1Phase);
 
@@ -36,10 +37,12 @@ InletMassFlowRateTemperature1Phase::check() const
 {
   FlowBoundary1Phase::check();
 
-  auto fm = dynamic_cast<const FlowModelSinglePhase *>(_flow_model.get());
-  if (fm == nullptr)
+  auto fm_1p = dynamic_cast<const FlowModelSinglePhase *>(_flow_model.get());
+  auto fm_hem = dynamic_cast<const FlowModelHEM *>(_flow_model.get());
+
+  if ((fm_1p == nullptr) && (fm_hem == nullptr))
     logError("Incompatible flow model. Make sure you use this component with single phase flow "
-             "channel.");
+             "channel or HEM flow channel.");
 }
 
 void

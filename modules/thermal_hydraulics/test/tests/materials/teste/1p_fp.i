@@ -1,9 +1,7 @@
 [FluidPropertiesInterrogator]
   fp = fp
-  # p = 15.5e+6
-  # T = 576.7498051
-  p = 23.5e+6
-  T = 700
+  p = 15.5e+6
+  T = 576.7498051
 []
 
 [FluidProperties]

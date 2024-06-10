@@ -117,6 +117,20 @@ HEM::e_vapor_from_p_T(ADReal p, ADReal T) const
   return _fp_vapor.e_from_p_T(p, T);
 }
 
+// Vapor phase internal energy from pressure and density
+ADReal
+HEM::e_vapor_from_p_rho(ADReal p, ADReal rho) const
+{
+  return _fp_vapor.e_from_p_rho(p, rho);
+}
+
+// Liquid phase internal energy from pressure and density
+ADReal
+HEM::e_liquid_from_p_rho(ADReal p, ADReal rho) const
+{
+  return _fp_liquid.e_from_p_rho(p, rho);
+}
+
 // Mixture specific enthalpy from pressure and temperature
 ADReal
 HEM::h_mixture_from_p_T(ADReal p, ADReal T, ADReal alpha) const
@@ -311,4 +325,25 @@ ADReal
 HEM::T_vapor_from_v_e(ADReal v, ADReal e) const
 {
   return _fp_vapor.T_from_v_e(v, e);
+}
+
+// Mixture dynamic vicosity from specific volume and internal energy
+ADReal
+HEM::mu_mixture_from_p_T(ADReal p, ADReal T, ADReal alpha) const
+{
+  return (1 - alpha) * (_fp_liquid.mu_from_p_T(p, T)) + alpha * (_fp_vapor.mu_from_p_T(p, T));
+}
+
+// Liquid phase dynamic vicosity from specific volume and internal energy
+ADReal
+HEM::mu_liquid_from_v_e(ADReal v, ADReal e) const
+{
+  return _fp_liquid.mu_from_v_e(v, e);
+}
+
+// Vapor phase dynamic vicosity from specific volume and internal energy
+ADReal
+HEM::mu_vapor_from_v_e(ADReal v, ADReal e) const
+{
+  return _fp_vapor.mu_from_v_e(v, e);
 }

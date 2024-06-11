@@ -48,7 +48,7 @@ FlowBoundaryHEM::check() const
 void
 FlowBoundaryHEM::addWeakBC3Eqn()
 {
-  const std::string class_name = "ADBoundaryFlux3EqnBC";
+  const std::string class_name = "ADBoundaryFlux3EqnBCHEM";
   InputParameters params = _factory.getValidParams(class_name);
   params.set<std::vector<BoundaryName>>("boundary") = getBoundaryNames();
   params.set<Real>("normal") = _normal;

@@ -10,6 +10,8 @@
 #pragma once
 
 #include "TwoPhaseFluidProperties.h"
+#include "SinglePhaseFluidProperties.h"
+#include "Numerics.h"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverloaded-virtual"
@@ -31,6 +33,8 @@ protected:
   const SinglePhaseFluidProperties & _fp_liquid;
   /// pointer to vapor fluid properties object (if provided 2-phase object)
   const SinglePhaseFluidProperties & _fp_vapor;
+  /// Initial temperature guess for the fluid state classification
+  const Real & _temp_guess;
 
 public:
   static InputParameters validParams();
@@ -182,6 +186,16 @@ public:
    * @return          vapor phase density
    */
   virtual ADReal e_vapor_from_p_rho(ADReal p, ADReal rho) const;
+
+  /**
+   * Mixture internal energy from pressure and density
+   *
+   * @param[in] p       pressure
+   * @param[in] rho     density
+   * @param[in] alpha   void fraction
+   * @return            Mixture density
+   */
+  virtual ADReal e_mixture_from_p_rho(ADReal p, ADReal rho, ADReal alpha) const;
 
   /**
    * Mixture specific enthalpy from pressure and temperature
@@ -352,6 +366,24 @@ public:
   virtual ADReal c_vapor_from_p_T(ADReal p, ADReal T) const;
 
   /**
+   * Liquid phase speed of sound from specific volume and internal energy
+   *
+   * @param[in] v   specific volume
+   * @param[in] e   internal energy
+   * @return        liquid phase speed of sound
+   */
+  virtual ADReal c_liquid_from_v_e(ADReal v, ADReal e) const;
+
+  /**
+   * Vapor phase speed of sound from specific volume and internal energy
+   *
+   * @param[in] v   specific volume
+   * @param[in] e   internal energy
+   * @return        vapor phase speed of sound
+   */
+  virtual ADReal c_vapor_from_v_e(ADReal v, ADReal e) const;
+
+  /**
    * Liquid phase pressure from specific volume and internal energy
    *
    * @param[in] v   specific volume
@@ -413,6 +445,52 @@ public:
    * @return        vapor phase dynamic viscosity
    */
   virtual ADReal mu_vapor_from_v_e(ADReal v, ADReal e) const;
+
+  // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
+  // Calculating the relevant fluid properties as a function of the conservative variables:
+  // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
+
+  /**
+   * Fluid internal energy from rho*E*A, rho*u*A, rho*A, and A: rhoe = rhoEA/A -
+   * 0.5*rho*vel^2
+   *
+   * @param[in] rhoEA  energy conservative variable
+   * @param[in] rhouA  momentum conservative variable
+   * @param[in] rhoA   mass conservative variable
+   * @param[in] A      cross-sectional area
+   * @return           Fluid density times internal energy
+   */
+  virtual ADReal
+  rhoe_from_rhoEA_rhouA_rhoA_A(ADReal rhoEA, ADReal rhouA, ADReal rhoA, ADReal A) const;
+
+  // determine the fluid state from rho*E*A, rho*u*A, rho*A, and A
+  struct HEMState
+  {
+    ADReal rho;
+    ADReal v;
+    ADReal vel;
+    ADReal e;
+    ADReal p;
+    ADReal T;
+    ADReal h;
+    ADReal H;
+    ADReal c;
+    ADReal cp;
+    ADReal cv;
+    ADReal k;
+    ADReal alpha;
+  };
+  /**
+   * Fluid state
+   *
+   * @param[in] rhoEA           energy conservative variable
+   * @param[in] rhouA           momentum conservative variable
+   * @param[in] rhoA            mass conservative variable
+   * @param[in] A               cross-sectional area
+   * @param[in] temp_guess      Temperature initial guess
+   * @return                    Fluid state
+   */
+  virtual HEMState fluid_state(ADReal rhoA, ADReal rhouA, ADReal rhoEA, ADReal A) const;
 };
 
 #pragma GCC diagnostic pop

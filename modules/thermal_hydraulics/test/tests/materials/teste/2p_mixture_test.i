@@ -48,10 +48,10 @@
 # rhouA = 755.4335467
 # rhoEA = 467291606.4873610
 
-# #Vapor Phase
-# rhoA = 120.1911367
-# rhouA = 360.5734101
-# rhoEA = 316081571.6137660
+#Vapor Phase
+rhoA = 120.1911367
+rhouA = 360.5734101
+rhoEA = 316081571.6137660
 
 [Variables]
   [A]
@@ -75,14 +75,15 @@
   [fp]
     type = HEM
     fp_2phase = fp_2phase
+    temp_guess = 500
   []
 []
 [Mesh]
   type = GeneratedMesh
-  dim = 3
+  dim = 1
   nx = 1
-  ny = 1
-  nz = 1
+  # ny = 1
+  # nz = 1
   allow_renumbering = false
 []
 
@@ -95,14 +96,14 @@
     rhouA = rhouA
     rhoEA = rhoEA
   []
-  [mu]
-    type = ADDynamicViscosityHEMMaterial
-    v = v
-    e = e
-    mu = mu
-    alpha = alpha
-    fp_2phase = fp
-  []
+  # [mu]
+  #   type = ADDynamicViscosityHEMMaterial
+  #   v = v
+  #   e = e
+  #   mu = mu
+  #   alpha = alpha
+  #   fp_2phase = fp
+  # []
 []
 
 [Problem]
@@ -115,48 +116,56 @@
   type = Steady
 []
 
- [Postprocessors]
-   [a_rho]
-     type = ADElementAverageMaterialProperty
-     mat_prop = rho
-   []
-   [b_v]
-     type = ADElementAverageMaterialProperty
-     mat_prop = v
-   []
-   [c_e]
-     type = ADElementAverageMaterialProperty
-     mat_prop = e
-   []
-   [d_h]
-     type = ADElementAverageMaterialProperty
-     mat_prop = h
-   []
-   [e_k]
-     type = ADElementAverageMaterialProperty
-     mat_prop = k
-   []
-   [f_c]
-     type = ADElementAverageMaterialProperty
-     mat_prop = c
-   []
-   [g_cp]
-     type = ADElementAverageMaterialProperty
-     mat_prop = cp
-   []
-   [h_cv]
-     type = ADElementAverageMaterialProperty
-     mat_prop = cv
-   []
-   [i_mu]
+[Postprocessors]
+  [a_rho]
     type = ADElementAverageMaterialProperty
-    mat_prop = mu
-   []
-   [j_alpha]
+    mat_prop = rho
+  []
+  [b_v]
+    type = ADElementAverageMaterialProperty
+    mat_prop = v
+  []
+  [c_e]
+    type = ADElementAverageMaterialProperty
+    mat_prop = e
+  []
+  [d_h]
+    type = ADElementAverageMaterialProperty
+    mat_prop = h
+  []
+  [e_k]
+    type = ADElementAverageMaterialProperty
+    mat_prop = k
+  []
+  [f_c]
+    type = ADElementAverageMaterialProperty
+    mat_prop = c
+  []
+  [g_cp]
+    type = ADElementAverageMaterialProperty
+    mat_prop = cp
+  []
+  [h_cv]
+    type = ADElementAverageMaterialProperty
+    mat_prop = cv
+  []
+  [i_p]
+    type = ADElementAverageMaterialProperty
+    mat_prop = p
+  []
+  [j_T]
+    type = ADElementAverageMaterialProperty
+    mat_prop = T
+  []
+  #  [i_mu]
+  #   type = ADElementAverageMaterialProperty
+  #   mat_prop = mu
+  #  []
+  [z_alpha]
     type = ADElementAverageMaterialProperty
     mat_prop = alpha
-   []
- []
+  []
+[]
 
 [Outputs]
   csv = true

@@ -480,9 +480,16 @@ template <typename T>
 const T &
 Simulation::getComponentByName(const std::string & name) const
 {
+  std::cout << "teste 13g\n";
   auto it = _comp_by_name.find(name);
+  std::cout << "teste 13h\n";
   if (it != _comp_by_name.end())
+  {
+    std::cout << "teste 13i\n";
     return *dynamic_cast<T *>((it->second).get());
+    std::cout << "teste 13j\n";
+  }
+
   else
     mooseError("Component '",
                name,

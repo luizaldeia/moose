@@ -252,40 +252,46 @@ Dean(const T1 & Re, const T2 & doD)
 }
 
 /**
- * Computes velocity and its derivatives from alpha*rho*A and alpha*rho*u*A
+ * Computes velocity and its derivatives from rhoA and rhouA (1-phase or homogeneous mixture) or
+ * arhoA and arhouA (2-phase)
  *
- * @param[in] arhoA           alpha*rho*A
- * @param[in] arhouA          alpha*rho*u*A
+ * @param[in] arhoA           rhoA (1-phase or homogeneous mixture) or alpha*rhoA (2-phase)
+ * @param[in] arhouA          rhouA (1-phase or homogeneous mixture) or alpha*rhouA (2-phase)
  * @param[out] vel            velocity
- * @param[out] dvel_darhoA    derivative of velocity w.r.t. alpha*rho*A
- * @param[out] dvel_darhouA   derivative of velocity w.r.t. alpha*rho*u*A
+ * @param[out] dvel_darhoA    derivative of velocity w.r.t. rhoA (1-phase or homogeneous mixture) or
+ * alpha*rhoA (2-phase)
+ * @param[out] dvel_darhouA   derivative of velocity w.r.t. rhouA (1-phase or homogeneous mixture)
+ * or alpha*rhouA (2-phase)
  */
 void
 vel_from_arhoA_arhouA(Real arhoA, Real arhouA, Real & vel, Real & dvel_darhoA, Real & dvel_darhouA);
 
 /**
- * Computes velocity from alpha*rho*A and alpha*rho*u*A
+ * Computes velocity from rhoA and rhouA (1-phase or homogeneous mixture) or arhoA and
+ * arhouA (2-phase)
  *
- * @param arhoA           alpha*rho*A
- * @param arhouA          alpha*rho*u*A
+ * @param arhoA           rhoA (1-phase or homogeneous mixture) or alpha*rhoA (2-phase)
+ * @param arhouA          rhouA (1-phase or homogeneous mixture) or alpha*rhouA (2-phase)
  * @return velocity
  */
 ADReal vel_from_arhoA_arhouA(ADReal arhoA, ADReal arhouA);
 
 /**
- * Derivative of velocity w.r.t. alpha*rho*A
+ * Derivative of velocity w.r.t. rhoA (1-phase or homogeneous mixture) or alpha*rhoA (2-phase)
  *
- * @param[in] arhoA    alpha*rho*A
- * @param[in] arhouA   alpha*rho*u*A
- * @returns derivative of velocity w.r.t. alpha*rho*A
+ * @param[in] arhoA    rhoA (1-phase or homogeneous mixture) or alpha*rhoA (2-phase)
+ * @param[in] arhouA   rhouA (1-phase or homogeneous mixture) or alpha*rhouA (2-phase)
+ * @returns derivative of velocity w.r.t. rhoA (1-phase or homogeneous mixture) or alpha*rhoA
+ * (2-phase)
  */
 Real dvel_darhoA(Real arhoA, Real arhouA);
 
 /**
- * Derivative of velocity w.r.t. alpha*rho*u*A
+ * Derivative of velocity w.r.t. rhouA (1-phase or homogeneous mixture) or alpha*rhouA (2-phase)
  *
- * @param[in] arhoA   alpha*rho*A
- * @returns derivative of velocity w.r.t. alpha*rho*u*A
+ * @param[in] arhoA   rhoA (1-phase or homogeneous mixture) or alpha*rhoA (2-phase)
+ * @returns derivative of velocity w.r.t. rhouA (1-phase or homogeneous mixture) or alpha*rhouA
+ * (2-phase)
  */
 Real dvel_darhouA(Real arhoA);
 

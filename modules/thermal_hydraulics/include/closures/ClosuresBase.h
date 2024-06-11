@@ -15,6 +15,7 @@
 
 class FlowChannelBase;
 class HeatTransferBase;
+class HeatTransferHEMBase;
 class THMProblem;
 class Factory;
 
@@ -45,6 +46,14 @@ public:
    */
   virtual void checkHeatTransfer(const HeatTransferBase & heat_transfer,
                                  const FlowChannelBase & flow_channel) const = 0;
+  /**
+   * Checks for errors associated with a heat transfer component
+   *
+   * @param[in] heat_transfer   Heat transfer component
+   * @param[in] flow_channel   Flow channel component
+   */
+  virtual void checkHeatTransferHEM(const HeatTransferHEMBase & heat_transfer,
+                                    const FlowChannelBase & flow_channel) const = 0;
 
   /**
    * Adds MOOSE objects associated with a flow channel component
@@ -54,6 +63,13 @@ public:
   virtual void addMooseObjectsFlowChannel(const FlowChannelBase & flow_channel) = 0;
 
   /**
+   * Adds MOOSE objects associated with a flow channel component
+   *
+   * @param[in] flow_channel   Flow channel component
+   */
+  virtual void addMooseObjectsFlowChannelHEM(const FlowChannelBase & flow_channel) = 0;
+
+  /**
    * Adds MOOSE objects associated with a heat transfer component
    *
    * @param[in] heat_transfer   Heat transfer component
@@ -61,6 +77,14 @@ public:
    */
   virtual void addMooseObjectsHeatTransfer(const HeatTransferBase & heat_transfer,
                                            const FlowChannelBase & flow_channel) = 0;
+  /**
+   * Adds MOOSE objects associated with a heat transfer component
+   *
+   * @param[in] heat_transfer   Heat transfer component
+   * @param[in] flow_channel   Flow channel component
+   */
+  virtual void addMooseObjectsHeatTransferHEM(const HeatTransferHEMBase & heat_transfer,
+                                              const FlowChannelBase & flow_channel) = 0;
 
 protected:
   /**

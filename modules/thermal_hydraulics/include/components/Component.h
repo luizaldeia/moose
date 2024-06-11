@@ -458,7 +458,9 @@ template <typename T>
 const T &
 Component::getComponentByName(const std::string & comp_name) const
 {
+  std::cout << "teste 13e\n";
   return _sim.getComponentByName<T>(comp_name);
+  std::cout << "teste 13f\n";
 }
 
 template <typename T>

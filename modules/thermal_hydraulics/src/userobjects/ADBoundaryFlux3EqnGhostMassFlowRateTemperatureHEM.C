@@ -25,8 +25,8 @@ ADBoundaryFlux3EqnGhostMassFlowRateTemperatureHEM::validParams()
 
   params.addRequiredParam<Real>("mass_flow_rate", "Specified mass flow rate");
   params.addRequiredParam<Real>("T", "Specified temperature");
-  params.addRequiredParam<MaterialPropertyName>("alpha", "Fluid void fraction");
-  params.addParam<bool>("reversible", true, "True for reversible, false for pure inlet");
+  // params.addRequiredParam<MaterialPropertyName>("alpha", "Fluid void fraction");
+  // params.addParam<bool>("reversible", true, "True for reversible, false for pure inlet");
 
   params.addRequiredParam<UserObjectName>("fluid_properties",
                                           "Name of single-phase fluid properties user object");
@@ -41,8 +41,8 @@ ADBoundaryFlux3EqnGhostMassFlowRateTemperatureHEM::
 
     _rhouA(getParam<Real>("mass_flow_rate")),
     _T(getParam<Real>("T")),
-    _alpha(getADMaterialProperty<Real>("alpha")),
-    _reversible(getParam<bool>("reversible")),
+    // _alpha(getADMaterialProperty<Real>("alpha")),
+    // _reversible(getParam<bool>("reversible")),
     _fp(getUserObject<HEM>("fluid_properties"))
 {
 }
@@ -55,75 +55,74 @@ ADBoundaryFlux3EqnGhostMassFlowRateTemperatureHEM::getGhostCellSolution(
   const ADReal rhouA = U[THM3Eqn::CONS_VAR_RHOUA];
   const ADReal rhoEA = U[THM3Eqn::CONS_VAR_RHOEA];
   const ADReal A = U[THM3Eqn::CONS_VAR_AREA];
-
   std::vector<ADReal> U_ghost(THM3Eqn::N_CONS_VAR);
-  if (!_reversible || THM::isInlet(_rhouA, _normal))
-  {
+  // if (!_reversible || THM::isInlet(_rhouA, _normal))
+  // {
 
-    if (static_cast<double>(_alpha) <= 0.0)
-    {
-      // Pressure is the only quantity coming from the interior
-      const ADReal rho = rhoA / A;
-      const ADReal vel = rhouA / rhoA;
-      const ADReal E = rhoEA / rhoA;
-      const ADReal e = E - 0.5 * vel * vel;
-      const ADReal p = _fp.p_liquid_from_v_e(1.0 / rho, e);
+  //   if (_alpha <= 0.0)
+  //   {
+  //     // Pressure is the only quantity coming from the interior
+  //     const ADReal rho = rhoA / A;
+  //     const ADReal vel = rhouA / rhoA;
+  //     const ADReal E = rhoEA / rhoA;
+  //     const ADReal e = E - 0.5 * vel * vel;
+  //     const ADReal p = _fp.p_liquid_from_v_e(1.0 / rho, e);
 
-      const ADReal rho_b = _fp.rho_liquid_from_p_T(p, _T);
-      const ADReal vel_b = _rhouA / (rho_b * A);
-      const ADReal e_b = _fp.e_liquid_from_p_rho(p, rho_b);
-      const ADReal E_b = e_b + 0.5 * vel_b * vel_b;
+  //     const ADReal rho_b = _fp.rho_liquid_from_p_T(p, _T);
+  //     const ADReal vel_b = _rhouA / (rho_b * A);
+  //     const ADReal e_b = _fp.e_liquid_from_p_rho(p, rho_b);
+  //     const ADReal E_b = e_b + 0.5 * vel_b * vel_b;
 
-      U_ghost[THM3Eqn::CONS_VAR_RHOA] = rho_b * A;
-      U_ghost[THM3Eqn::CONS_VAR_RHOUA] = _rhouA;
-      U_ghost[THM3Eqn::CONS_VAR_RHOEA] = rho_b * E_b * A;
-      U_ghost[THM3Eqn::CONS_VAR_AREA] = A;
-    }
-    else if (alpha >= 1.0)
-    {
-      // Pressure is the only quantity coming from the interior
-      const ADReal rho = rhoA / A;
-      const ADReal vel = rhouA / rhoA;
-      const ADReal E = rhoEA / rhoA;
-      const ADReal e = E - 0.5 * vel * vel;
-      const ADReal p = _fp.p_vapor_from_v_e(1.0 / rho, e);
+  //     U_ghost[THM3Eqn::CONS_VAR_RHOA] = rho_b * A;
+  //     U_ghost[THM3Eqn::CONS_VAR_RHOUA] = _rhouA;
+  //     U_ghost[THM3Eqn::CONS_VAR_RHOEA] = rho_b * E_b * A;
+  //     U_ghost[THM3Eqn::CONS_VAR_AREA] = A;
+  //   }
+  //   else if (_alpha >= MatReal(1.0))
+  //   {
+  //     // Pressure is the only quantity coming from the interior
+  //     const ADReal rho = rhoA / A;
+  //     const ADReal vel = rhouA / rhoA;
+  //     const ADReal E = rhoEA / rhoA;
+  //     const ADReal e = E - 0.5 * vel * vel;
+  //     const ADReal p = _fp.p_vapor_from_v_e(1.0 / rho, e);
 
-      const ADReal rho_b = _fp.rho_vapor_from_p_T(p, _T);
-      const ADReal vel_b = _rhouA / (rho_b * A);
-      const ADReal e_b = _fp.e_vapor_from_p_rho(p, rho_b);
-      const ADReal E_b = e_b + 0.5 * vel_b * vel_b;
+  //     const ADReal rho_b = _fp.rho_vapor_from_p_T(p, _T);
+  //     const ADReal vel_b = _rhouA / (rho_b * A);
+  //     const ADReal e_b = _fp.e_vapor_from_p_rho(p, rho_b);
+  //     const ADReal E_b = e_b + 0.5 * vel_b * vel_b;
 
-      U_ghost[THM3Eqn::CONS_VAR_RHOA] = rho_b * A;
-      U_ghost[THM3Eqn::CONS_VAR_RHOUA] = _rhouA;
-      U_ghost[THM3Eqn::CONS_VAR_RHOEA] = rho_b * E_b * A;
-      U_ghost[THM3Eqn::CONS_VAR_AREA] = A;
-    }
-    else
-    {
-      // Pressure is the only quantity coming from the interior
-      const ADReal rho = rhoA / A;
-      const ADReal vel = rhouA / rhoA;
-      const ADReal E = rhoEA / rhoA;
-      const ADReal e = E - 0.5 * vel * vel;
-      const ADReal p = _fp.p_sat(_T);
+  //     U_ghost[THM3Eqn::CONS_VAR_RHOA] = rho_b * A;
+  //     U_ghost[THM3Eqn::CONS_VAR_RHOUA] = _rhouA;
+  //     U_ghost[THM3Eqn::CONS_VAR_RHOEA] = rho_b * E_b * A;
+  //     U_ghost[THM3Eqn::CONS_VAR_AREA] = A;
+  //   }
+  //   else
+  //   {
+  //     // Pressure is the only quantity coming from the interior
+  //     const ADReal rho = rhoA / A;
+  //     const ADReal vel = rhouA / rhoA;
+  //     const ADReal E = rhoEA / rhoA;
+  //     const ADReal e = E - 0.5 * vel * vel;
+  //     const ADReal p = _fp.p_sat(_T);
 
-      const ADReal rho_b = _fp.rho_vapor_from_p_T(p, _T);
-      const ADReal vel_b = _rhouA / (rho_b * A);
-      const ADReal E_b = e + 0.5 * vel_b * vel_b;
+  //     const ADReal rho_b = _fp.rho_vapor_from_p_T(p, _T);
+  //     const ADReal vel_b = _rhouA / (rho_b * A);
+  //     const ADReal E_b = e + 0.5 * vel_b * vel_b;
 
-      U_ghost[THM3Eqn::CONS_VAR_RHOA] = rho_b * A;
-      U_ghost[THM3Eqn::CONS_VAR_RHOUA] = _rhouA;
-      U_ghost[THM3Eqn::CONS_VAR_RHOEA] = rho_b * E_b * A;
-      U_ghost[THM3Eqn::CONS_VAR_AREA] = A;
-    }
-  }
-  else
-  {
-    U_ghost[THM3Eqn::CONS_VAR_RHOA] = rhoA;
-    U_ghost[THM3Eqn::CONS_VAR_RHOUA] = _rhouA;
-    U_ghost[THM3Eqn::CONS_VAR_RHOEA] = rhoEA;
-    U_ghost[THM3Eqn::CONS_VAR_AREA] = A;
-  }
+  //     U_ghost[THM3Eqn::CONS_VAR_RHOA] = rho_b * A;
+  //     U_ghost[THM3Eqn::CONS_VAR_RHOUA] = _rhouA;
+  //     U_ghost[THM3Eqn::CONS_VAR_RHOEA] = rho_b * E_b * A;
+  //     U_ghost[THM3Eqn::CONS_VAR_AREA] = A;
+  //   }
+  // }
+  // else
+  // {
+  U_ghost[THM3Eqn::CONS_VAR_RHOA] = rhoA;
+  U_ghost[THM3Eqn::CONS_VAR_RHOUA] = _rhouA;
+  U_ghost[THM3Eqn::CONS_VAR_RHOEA] = rhoEA;
+  U_ghost[THM3Eqn::CONS_VAR_AREA] = A;
+  // }
 
   return U_ghost;
 }

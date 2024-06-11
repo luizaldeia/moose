@@ -32,10 +32,10 @@ protected:
   const Real & _T;
 
   /// Fluid void fraction
-  const ADMaterialProperty<Real> & _alpha;
+  // const ADMaterialProperty<Real> & _alpha;
 
   /// Reversible flag
-  const bool & _reversible;
+  // const bool & _reversible;
 
   /// Fluid properties object
   const HEM & _fp;

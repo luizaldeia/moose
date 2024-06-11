@@ -10,6 +10,8 @@
 #include "Closures1PhaseNone.h"
 #include "FlowChannel1Phase.h"
 #include "HeatTransfer1PhaseBase.h"
+#include "FlowChannelHEM.h"
+#include "HeatTransferHEMBase.h"
 
 registerMooseObject("ThermalHydraulicsApp", Closures1PhaseNone);
 
@@ -28,6 +30,10 @@ Closures1PhaseNone::validParams()
 Closures1PhaseNone::Closures1PhaseNone(const InputParameters & params) : Closures1PhaseBase(params)
 {
 }
+
+// ==============================================================================
+//                             Single phase flow model
+// ==============================================================================
 
 void
 Closures1PhaseNone::checkFlowChannel(const FlowChannelBase & /*flow_channel*/) const
@@ -63,4 +69,32 @@ void
 Closures1PhaseNone::addMooseObjectsHeatTransfer(const HeatTransferBase & /*heat_transfer*/,
                                                 const FlowChannelBase & /*flow_channel*/)
 {
+}
+
+// ==============================================================================
+//                          Homogeneous Equilibrium Model
+// ==============================================================================
+
+void
+Closures1PhaseNone::checkHeatTransferHEM(const HeatTransferHEMBase & /*heat_transfer*/,
+                                         const FlowChannelBase & /*flow_channel*/) const
+{
+}
+
+void
+Closures1PhaseNone::addMooseObjectsFlowChannelHEM(const FlowChannelBase & flow_channel)
+{
+  if (getParam<bool>("add_wall_temperature_property"))
+  {
+    const FlowChannelHEM & flow_channel_hem = dynamic_cast<const FlowChannelHEM &>(flow_channel);
+
+    const unsigned int n_ht_connections = flow_channel_hem.getNumberOfHeatTransferConnections();
+    if ((n_ht_connections > 0) && (flow_channel.getTemperatureMode()))
+    {
+      if (flow_channel.getNumberOfHeatTransferConnections() > 1)
+        addAverageWallTemperatureMaterialHEM(flow_channel_hem);
+      else
+        addWallTemperatureFromAuxMaterial(flow_channel_hem);
+    }
+  }
 }

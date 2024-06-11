@@ -53,6 +53,11 @@ ADDynamicViscosityHEMMaterial::ADDynamicViscosityHEMMaterial(const InputParamete
 void
 ADDynamicViscosityHEMMaterial::computeQpProperties()
 {
+  // std::cout << "\n";
+  // std::cout << "========================================\n";
+  // std::cout << "ADDynamicViscosityHEMMaterial \n";
+  // std::cout << "========================================\n";
+  // std::cout << "\n";
   if (_alpha[_qp] <= 0.0)
   {
     _mu[_qp] = _fp_hem.mu_liquid_from_v_e(_v[_qp], _e[_qp]);

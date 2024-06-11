@@ -10,7 +10,7 @@
 #include "FlowChannelHEM.h"
 #include "FlowModelHEM.h"
 #include "HEM.h"
-#include "HeatTransfer1PhaseBase.h"
+#include "HeatTransferHEMBase.h"
 #include "ClosuresHEMBase.h"
 #include "ThermalHydraulicsApp.h"
 #include "SlopeReconstruction1DInterface.h"
@@ -20,11 +20,13 @@ registerMooseObject("ThermalHydraulicsApp", FlowChannelHEM);
 InputParameters
 FlowChannelHEM::validParams()
 {
+  std::cout << "teste 15\n";
   InputParameters params = FlowChannelBase::validParams();
 
   params.addParam<FunctionName>("initial_p", "Initial pressure in the flow channel [Pa]");
   params.addParam<FunctionName>("initial_vel", "Initial velocity in the flow channel [m/s]");
   params.addParam<FunctionName>("initial_T", "Initial temperature in the flow channel [K]");
+  params.addParam<FunctionName>("initial_alpha", "Initial void fraction in the flow channel");
   params.addParam<FunctionName>("D_h", "Hydraulic diameter [m]");
   params.addParam<MooseEnum>(
       "rdg_slope_reconstruction",
@@ -36,8 +38,11 @@ FlowChannelHEM::validParams()
       sf_1phase,
       "Scaling factors for each single phase variable (rhoA, rhouA, rhoEA)");
 
-  params.declareControllable("initial_p initial_T initial_vel D_h");
-  params.addParamNamesToGroup("initial_p initial_T initial_vel", "Variable initialization");
+  params.declareControllable("initial_p initial_T initial_vel initial_alpha D_h");
+  params.addParamNamesToGroup("initial_p initial_T initial_vel initial_alpha",
+                              "Variable initialization");
+  // params.declareControllable("initial_p initial_T initial_vel D_h");
+  // params.addParamNamesToGroup("initial_p initial_T initial_vel", "Variable initialization");
   params.addParamNamesToGroup("rdg_slope_reconstruction scaling_factor_1phase", "Numerical scheme");
   params.addClassDescription("1-phase 1D flow channel");
 
@@ -49,12 +54,15 @@ FlowChannelHEM::FlowChannelHEM(const InputParameters & params)
 
     _numerical_flux_name(genName(name(), "numerical_flux")),
     _rdg_slope_reconstruction(getParam<MooseEnum>("rdg_slope_reconstruction"))
+
 {
+  std::cout << "teste 16\n";
 }
 
 void
 FlowChannelHEM::init()
 {
+  std::cout << "teste 17\n";
   FlowChannelBase::init();
 
   const UserObject & fp = getTHMProblem().getUserObject<UserObject>(_fp_name);
@@ -65,6 +73,7 @@ FlowChannelHEM::init()
 std::shared_ptr<FlowModel>
 FlowChannelHEM::buildFlowModel()
 {
+  std::cout << "teste 18\n";
   const std::string class_name = "FlowModelHEM";
   InputParameters pars = _factory.getValidParams(class_name);
   pars.set<THMProblem *>("_thm_problem") = &getTHMProblem();
@@ -78,26 +87,30 @@ FlowChannelHEM::buildFlowModel()
 void
 FlowChannelHEM::check() const
 {
+  std::cout << "teste 19\n";
   FlowChannelBase::check();
 
   // only 1-phase flow compatible heat transfers are allowed
   for (unsigned int i = 0; i < _heat_transfer_names.size(); i++)
   {
-    if (!hasComponentByName<HeatTransfer1PhaseBase>(_heat_transfer_names[i]))
+    std::cout << "teste 20\n";
+    if (!hasComponentByName<HeatTransferHEMBase>(_heat_transfer_names[i]))
       logError("Coupled heat source '",
                _heat_transfer_names[i],
                "' is not compatible with single phase flow channel. Use single phase heat transfer "
                "component instead.");
   }
 
-  bool ics_set =
-      getTHMProblem().hasInitialConditionsFromFile() ||
-      (isParamValid("initial_p") && isParamValid("initial_T") && isParamValid("initial_vel"));
+  bool ics_set = getTHMProblem().hasInitialConditionsFromFile() ||
+                 (isParamValid("initial_p") && isParamValid("initial_T") &&
+                  isParamValid("initial_vel") && isParamValid("initial_alpha"));
 
   if (!ics_set && !_app.isRestarting())
   {
+    std::cout << "teste 21\n";
     // create a list of the missing IC parameters
-    const std::vector<std::string> ic_params{"initial_p", "initial_T", "initial_vel"};
+    const std::vector<std::string> ic_params{
+        "initial_p", "initial_T", "initial_vel", "initial_alpha"};
     std::ostringstream oss;
     for (const auto & ic_param : ic_params)
       if (!isParamValid(ic_param))
@@ -110,6 +123,7 @@ FlowChannelHEM::check() const
 void
 FlowChannelHEM::addMooseObjects()
 {
+  std::cout << "teste 22\n";
   FlowChannelBase::addMooseObjects();
 
   if (!_pipe_pars_transferred)
@@ -119,10 +133,12 @@ FlowChannelHEM::addMooseObjects()
 void
 FlowChannelHEM::addHydraulicDiameterMaterial()
 {
+  std::cout << "teste 23\n";
   const std::string mat_name = genName(name(), "D_h_material");
 
   if (isParamValid("D_h"))
   {
+    std::cout << "teste 24\n";
     const FunctionName & D_h_fn_name = getParam<FunctionName>("D_h");
 
     const std::string class_name = "ADGenericFunctionMaterial";
@@ -136,6 +152,7 @@ FlowChannelHEM::addHydraulicDiameterMaterial()
   }
   else
   {
+    std::cout << "teste 25\n";
     const std::string class_name = "ADHydraulicDiameterCircularMaterial";
     InputParameters params = _factory.getValidParams(class_name);
     params.set<std::vector<SubdomainName>>("block") = getSubdomainNames();
@@ -148,13 +165,16 @@ FlowChannelHEM::addHydraulicDiameterMaterial()
 void
 FlowChannelHEM::getHeatTransferVariableNames()
 {
+  std::cout << "teste 26\n";
   FlowChannelBase::getHeatTransferVariableNames();
 
   for (unsigned int i = 0; i < _n_heat_transfer_connections; i++)
   {
-    const HeatTransfer1PhaseBase & heat_transfer =
-        getComponentByName<HeatTransfer1PhaseBase>(_heat_transfer_names[i]);
-
+    std::cout << "teste 27\n";
+    const HeatTransferHEMBase & heat_transfer =
+        getComponentByName<HeatTransferHEMBase>(_heat_transfer_names[i]);
+    std::cout << "teste 13c\n";
     _Hw_1phase_names.push_back(heat_transfer.getWallHeatTransferCoefficient1PhaseName());
+    std::cout << "teste 13d\n";
   }
 }

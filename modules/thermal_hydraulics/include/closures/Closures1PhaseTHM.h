@@ -39,12 +39,26 @@ public:
     CHURCHILL
   };
 
+  // ==============================================================================
+  //                             Single phase flow model
+  // ==============================================================================
+
   virtual void checkFlowChannel(const FlowChannelBase & flow_channel) const override;
   virtual void checkHeatTransfer(const HeatTransferBase & heat_transfer,
                                  const FlowChannelBase & flow_channel) const override;
   virtual void addMooseObjectsFlowChannel(const FlowChannelBase & flow_channel) override;
   virtual void addMooseObjectsHeatTransfer(const HeatTransferBase & /*heat_transfer*/,
-                                           const FlowChannelBase & /*flow_channel*/) override{};
+                                           const FlowChannelBase & /*flow_channel*/) override {};
+
+  // ==============================================================================
+  //                          Homogeneous Equilibrium Model
+  // ==============================================================================
+
+  virtual void checkHeatTransferHEM(const HeatTransferHEMBase & /*heat_transfer*/,
+                                    const FlowChannelBase & /*flow_channel*/) const override {};
+  virtual void addMooseObjectsFlowChannelHEM(const FlowChannelBase & /*flow_channel*/) override {};
+  virtual void addMooseObjectsHeatTransferHEM(const HeatTransferHEMBase & /*heat_transfer*/,
+                                              const FlowChannelBase & /*flow_channel*/) override {};
 
 protected:
   /**

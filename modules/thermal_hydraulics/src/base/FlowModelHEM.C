@@ -86,21 +86,29 @@ FlowModelHEM::addVariables()
     _sim.addSimVariable(false, VELOCITY_Z, _fe_type, subdomains);
   }
   else
+  {
     _sim.addSimVariable(false, VELOCITY, _fe_type, subdomains);
+  }
   _sim.addSimVariable(false, PRESSURE, _fe_type, subdomains);
   _sim.addSimVariable(false, SPECIFIC_VOLUME, _fe_type, subdomains);
   _sim.addSimVariable(false, SPECIFIC_INTERNAL_ENERGY, _fe_type, subdomains);
   _sim.addSimVariable(false, TEMPERATURE, _fe_type, subdomains);
   _sim.addSimVariable(false, SPECIFIC_TOTAL_ENTHALPY, _fe_type, subdomains);
+  _sim.addSimVariable(false, VOID_FRACTION, _fe_type, subdomains);
 }
 
 void
 FlowModelHEM::addInitialConditions()
 {
   FlowModel::addCommonInitialConditions();
+  std::cout << "\n";
+  std::cout << "=========================================== \n";
+  std::cout << "Setting the IC \n";
+  std::cout << "=========================================== \n";
+  std::cout << "\n";
 
   if (_flow_channel.isParamValid("initial_p") && _flow_channel.isParamValid("initial_T") &&
-      _flow_channel.isParamValid("initial_vel"))
+      _flow_channel.isParamValid("initial_vel") && _flow_channel.isParamValid("initial_alpha"))
   {
     const std::vector<SubdomainName> & block = _flow_channel.getSubdomainNames();
 
@@ -109,6 +117,9 @@ FlowModelHEM::addInitialConditions()
 
     const FunctionName & T_fn = getVariableFn("initial_T");
     _sim.addFunctionIC(TEMPERATURE, T_fn, block);
+
+    const FunctionName & alpha_fn = getVariableFn("initial_alpha");
+    _sim.addFunctionIC(VOID_FRACTION, alpha_fn, block);
 
     const FunctionName & vel_fn = getVariableFn("initial_vel");
     if (_output_vector_velocity)
@@ -135,7 +146,7 @@ FlowModelHEM::addInitialConditions()
         _sim.addSimInitialCondition(class_name, genName(_comp_name, "rhouA_ic"), params);
       }
       {
-        std::string class_name = "RhoEAFromPressureTemperatureFunctionVelocityIC";
+        std::string class_name = "RhoEAFromPressureTemperatureFunctionVelocityICHEM";
         InputParameters params = _factory.getValidParams(class_name);
         params.set<VariableName>("variable") = RHOEA;
         params.set<std::vector<SubdomainName>>("block") = block;
@@ -174,7 +185,7 @@ FlowModelHEM::addInitialConditions()
     }
 
     {
-      std::string class_name = "RhoFromPressureTemperatureIC";
+      std::string class_name = "RhoFromPressureTemperatureICHEM";
       InputParameters params = _factory.getValidParams(class_name);
       params.set<VariableName>("variable") = DENSITY;
       params.set<std::vector<SubdomainName>>("block") = block;
@@ -425,24 +436,40 @@ FlowModelHEM::addMooseObjects()
   }
 
   {
-    std::string class_name = "PressureAux";
+    std::string class_name = "THMPressureAuxHEM";
     InputParameters params = _factory.getValidParams(class_name);
     params.set<AuxVariableName>("variable") = PRESSURE;
     params.set<std::vector<SubdomainName>>("block") = _flow_channel.getSubdomainNames();
-    params.set<std::vector<VariableName>>("e") = {SPECIFIC_INTERNAL_ENERGY};
-    params.set<std::vector<VariableName>>("v") = {SPECIFIC_VOLUME};
+    params.set<std::vector<VariableName>>("rhoA") = {RHOA};
+    params.set<std::vector<VariableName>>("rhouA") = {RHOUA};
+    params.set<std::vector<VariableName>>("rhoEA") = {RHOEA};
+    params.set<std::vector<VariableName>>("A") = {AREA};
     params.set<UserObjectName>("fp") = _fp_name;
     _sim.addAuxKernel(class_name, genName(_comp_name, "pressure_uv_auxkernel"), params);
   }
   {
-    std::string class_name = "TemperatureAux";
+    std::string class_name = "THMTemperatureAuxHEM";
     InputParameters params = _factory.getValidParams(class_name);
     params.set<AuxVariableName>("variable") = TEMPERATURE;
     params.set<std::vector<SubdomainName>>("block") = _flow_channel.getSubdomainNames();
-    params.set<std::vector<VariableName>>("e") = {SPECIFIC_INTERNAL_ENERGY};
-    params.set<std::vector<VariableName>>("v") = {SPECIFIC_VOLUME};
+    params.set<std::vector<VariableName>>("rhoA") = {RHOA};
+    params.set<std::vector<VariableName>>("rhouA") = {RHOUA};
+    params.set<std::vector<VariableName>>("rhoEA") = {RHOEA};
+    params.set<std::vector<VariableName>>("A") = {AREA};
     params.set<UserObjectName>("fp") = _fp_name;
     _sim.addAuxKernel(class_name, genName(_comp_name, "T_auxkernel"), params);
+  }
+  {
+    std::string class_name = "THMVoidFractionAuxHEM";
+    InputParameters params = _factory.getValidParams(class_name);
+    params.set<AuxVariableName>("variable") = VOID_FRACTION;
+    params.set<std::vector<SubdomainName>>("block") = _flow_channel.getSubdomainNames();
+    params.set<std::vector<VariableName>>("rhoA") = {RHOA};
+    params.set<std::vector<VariableName>>("rhouA") = {RHOUA};
+    params.set<std::vector<VariableName>>("rhoEA") = {RHOEA};
+    params.set<std::vector<VariableName>>("A") = {AREA};
+    params.set<UserObjectName>("fp") = _fp_name;
+    _sim.addAuxKernel(class_name, genName(_comp_name, "void_fraction_auxkernel"), params);
   }
 
   {
@@ -461,7 +488,7 @@ FlowModelHEM::addMooseObjects()
 void
 FlowModelHEM::addNumericalFluxUserObject()
 {
-  const std::string class_name = "ADNumericalFlux3EqnHLLC";
+  const std::string class_name = "ADNumericalFlux3EqnHLLCHEM";
   InputParameters params = _factory.getValidParams(class_name);
   params.set<UserObjectName>("fluid_properties") = _fp_name;
   params.set<MooseEnum>("emit_on_nan") = "none";
@@ -474,7 +501,7 @@ FlowModelHEM::addRDGMooseObjects()
 {
   // slope reconstruction material
   {
-    const std::string class_name = "ADRDG3EqnMaterial";
+    const std::string class_name = "ADRDG3EqnMaterialHEM";
     InputParameters params = _factory.getValidParams(class_name);
     params.set<std::vector<SubdomainName>>("block") = _flow_channel.getSubdomainNames();
     params.set<MooseEnum>("scheme") = _rdg_slope_reconstruction;
@@ -487,6 +514,11 @@ FlowModelHEM::addRDGMooseObjects()
     params.set<UserObjectName>("fluid_properties") = _fp_name;
     params.set<bool>("implicit") = _sim.getImplicitTimeIntegrationFlag();
     _sim.addMaterial(class_name, genName(_comp_name, "rdg_3egn_mat"), params);
+    std::cout << "\n";
+    std::cout << "========================================\n";
+    std::cout << "slope reconstruction material \n";
+    std::cout << "========================================\n";
+    std::cout << "\n";
   }
 
   addRDGAdvectionDGKernels();

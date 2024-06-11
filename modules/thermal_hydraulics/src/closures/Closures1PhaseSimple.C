@@ -11,6 +11,9 @@
 #include "FlowModelSinglePhase.h"
 #include "FlowChannel1Phase.h"
 #include "HeatTransfer1PhaseBase.h"
+#include "FlowModelHEM.h"
+#include "FlowChannelHEM.h"
+#include "HeatTransferHEMBase.h"
 
 registerMooseObject("ThermalHydraulicsApp", Closures1PhaseSimple);
 
@@ -36,6 +39,10 @@ Closures1PhaseSimple::checkFlowChannel(const FlowChannelBase & flow_channel) con
     logComponentError(flow_channel.cname(),
                       "When using simple closures, the parameter 'f' must be provided.");
 }
+
+// ==============================================================================
+//                             Single phase flow model
+// ==============================================================================
 
 void
 Closures1PhaseSimple::checkHeatTransfer(const HeatTransferBase & heat_transfer,
@@ -113,5 +120,87 @@ Closures1PhaseSimple::addWallTemperatureFromHeatFluxMaterial(
   params.set<MaterialPropertyName>("T") = FlowModelSinglePhase::TEMPERATURE;
   params.set<MaterialPropertyName>("q_wall") = FlowModel::HEAT_FLUX_WALL;
   params.set<MaterialPropertyName>("Hw") = FlowModelSinglePhase::HEAT_TRANSFER_COEFFICIENT_WALL;
+  _sim.addMaterial(class_name, genName(flow_channel.name(), "T_wall_mat"), params);
+}
+
+// ==============================================================================
+//                          Homogeneous Equilibrium Model
+// ==============================================================================
+
+void
+Closures1PhaseSimple::checkHeatTransferHEM(const HeatTransferHEMBase & heat_transfer,
+                                           const FlowChannelBase & /*flow_channel*/) const
+{
+  if (!heat_transfer.isParamValid("Hw"))
+    logComponentError(heat_transfer.cname(),
+                      "The parameter 'Hw' must be provided when using simple closures.");
+}
+
+void
+Closures1PhaseSimple::addMooseObjectsFlowChannelHEM(const FlowChannelBase & flow_channel)
+{
+  const FlowChannelHEM & flow_channel_hem = dynamic_cast<const FlowChannelHEM &>(flow_channel);
+
+  // wall friction material
+  addWallFrictionFunctionMaterialHEM(flow_channel_hem);
+
+  const unsigned int n_ht_connections = flow_channel_hem.getNumberOfHeatTransferConnections();
+  if (n_ht_connections > 0)
+  {
+    // wall heat transfer coefficient material
+    if (n_ht_connections > 1)
+      addWeightedAverageMaterial(flow_channel_hem,
+                                 flow_channel_hem.getWallHTCNames1Phase(),
+                                 flow_channel_hem.getHeatedPerimeterNames(),
+                                 FlowModelHEM::HEAT_TRANSFER_COEFFICIENT_WALL);
+
+    // wall temperature material
+    if (flow_channel_hem.getTemperatureMode())
+    {
+      if (n_ht_connections > 1)
+        addAverageWallTemperatureMaterialHEM(flow_channel_hem);
+      else
+        addWallTemperatureFromAuxMaterial(flow_channel_hem);
+    }
+    else
+    {
+      if (n_ht_connections > 1)
+        addWallTemperatureFromHeatFluxMaterialHEM(flow_channel_hem);
+    }
+  }
+}
+
+void
+Closures1PhaseSimple::addMooseObjectsHeatTransferHEM(const HeatTransferHEMBase & heat_transfer,
+                                                     const FlowChannelBase & flow_channel)
+{
+  const HeatTransferHEMBase & heat_transfer_1phase =
+      dynamic_cast<const HeatTransferHEMBase &>(heat_transfer);
+  const FunctionName & Hw_fn_name = heat_transfer.getParam<FunctionName>("Hw");
+
+  {
+    const std::string class_name = "ADGenericFunctionMaterial";
+    InputParameters params = _factory.getValidParams(class_name);
+    params.set<std::vector<SubdomainName>>("block") = flow_channel.getSubdomainNames();
+    params.set<std::vector<std::string>>("prop_names") = {
+        heat_transfer_1phase.getWallHeatTransferCoefficient1PhaseName()};
+    params.set<std::vector<FunctionName>>("prop_values") = {Hw_fn_name};
+    _sim.addMaterial(
+        class_name, genName(heat_transfer.name(), "Hw_material", flow_channel.name()), params);
+  }
+
+  heat_transfer.makeFunctionControllableIfConstant(Hw_fn_name, "Hw");
+}
+
+void
+Closures1PhaseSimple::addWallTemperatureFromHeatFluxMaterialHEM(
+    const FlowChannelHEM & flow_channel) const
+{
+  const std::string class_name = "ADTemperatureWall3EqnMaterial";
+  InputParameters params = _factory.getValidParams(class_name);
+  params.set<std::vector<SubdomainName>>("block") = flow_channel.getSubdomainNames();
+  params.set<MaterialPropertyName>("T") = FlowModelHEM::TEMPERATURE;
+  params.set<MaterialPropertyName>("q_wall") = FlowModel::HEAT_FLUX_WALL;
+  params.set<MaterialPropertyName>("Hw") = FlowModelHEM::HEAT_TRANSFER_COEFFICIENT_WALL;
   _sim.addMaterial(class_name, genName(flow_channel.name(), "T_wall_mat"), params);
 }

@@ -171,6 +171,7 @@ e_from_E_vel(Real E, Real vel, Real & e, Real & de_dE, Real & de_dvel)
   de_dE = 1;
   de_dvel = -vel;
 }
+
 ADReal
 e_from_E_vel(ADReal E, ADReal vel)
 {

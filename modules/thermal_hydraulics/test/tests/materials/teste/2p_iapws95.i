@@ -1,82 +1,87 @@
-#Liquid Phase 0 - near minimum temperature
-rhoA = 2015.0852080
-rhouA = 6045.2556240
-rhoEA = 7481976.7420194
-
 # #Liquid Phase 1
+# rhoA = 2015.0852080
+# rhouA = 6045.2556240
+# rhoEA = 7481976.7420194
+
+# #Liquid Phase 2
 # rhoA = 1437.8994142
 # rhouA = 4313.6982426
 # rhoEA = 1921202327.1160000
 
-# #Liquid Phase 2
+# #Liquid Phase 3
 # rhoA = 1291.2327990
 # rhouA = 3873.6983970
 # rhoEA = 1944463933.3906100
 
-# #Liquid Phase 3 - saturation
+# #Liquid Phase sat
 # rhoA = 1188.7574480
 # rhouA = 3566.2723440
 # rhoEA = 1906537193.1813900
 
-# #Mixture 1 - alpha = 0.1
-# rhoA = 1090.2678632
-# rhouA = 3270.8035896
-# rhoEA = 1765708380.3351300
+# #Mixture Phase alpha = 0.1
+# rhoA = 1090.2678577
+# rhouA = 3270.8035730
+# rhoEA = 1765708364.6055900
 
-# #Mixture 2 - alpha = 0.2
-# rhoA = 991.7782784
-# rhouA = 2975.3348352
-# rhoEA = 1624879567.4888700
+# #Mixture Phase alpha = 0.2
+# rhoA = 991.7782673
+# rhouA = 2975.3348020
+# rhoEA = 1624879536.0297900
 
-# #Mixture 3 - alpha = 0.3
-# rhoA = 893.2886936
-# rhouA = 2679.8660808
-# rhoEA = 1484050754.6426100
+# #Mixture Phase alpha = 0.3
+# rhoA = 893.2886770
+# rhouA = 2679.8660309
+# rhoEA = 1484050707.4539900
 
-# #Mixture 4 - alpha = 0.4
-# rhoA = 794.7991088
-# rhouA = 2384.3973264
-# rhoEA = 1343221941.7963500
+# #Mixture Phase alpha = 0.4
+# rhoA = 794.7990866
+# rhouA = 2384.3972599
+# rhoEA = 1343221878.8781900
 
-# #Mixture 5 - alpha = 0.5
-# rhoA = 696.3095240
-# rhouA = 2088.9285720
-# rhoEA = 1202393128.9500900
+# #Mixture Phase alpha = 0.5
+# rhoA = 696.3094963
+# rhouA = 2088.9284889
+# rhoEA = 1202393050.3023900
 
-# #Mixture 6 - alpha = 0.6
-# rhoA = 597.8199392
-# rhouA = 1793.4598176
-# rhoEA = 1061564316.1038300
+# #Mixture Phase alpha = 0.6
+# rhoA = 597.8199060
+# rhouA = 1793.4597179
+# rhoEA = 1061564221.7265900
 
-# #Mixture 7 - alpha = 0.7
-# rhoA = 499.3303544
-# rhouA = 1497.9910632
-# rhoEA = 920735503.2575760
+# #Mixture Phase alpha = 0.7
+# rhoA = 499.3303156
+# rhouA = 1497.9909469
+# rhoEA = 920735393.1507930
 
-# #Mixture 8 - alpha = 0.8
-# rhoA = 400.8407696
-# rhouA = 1202.5223088
-# rhoEA = 779906690.4113170
+# #Mixture Phase alpha = 0.8
+# rhoA = 400.8407253
+# rhouA = 1202.5221758
+# rhoEA = 779906564.5749930
 
-# #Mixture 9 - alpha = 0.9
-# rhoA = 302.3511848
-# rhouA = 907.0535544
-# rhoEA = 639077877.5650590
+# #Mixture Phase alpha = 0.9
+# rhoA = 302.3511349
+# rhouA = 907.0534048
+# rhoEA = 639077735.9991940
 
-# #Vapor Phase 1 - saturation
+# #Vapor Phase sat
 # rhoA = 203.8615446
 # rhouA = 611.5846338
 # rhoEA = 498248907.4233950
 
-# #Vapor Phase 2
+# #Vapor Phase 1
 # rhoA = 162.8378940
 # rhouA = 488.5136821
 # rhoEA = 421264381.5784430
 
-# #Vapor Phase 3 - near maximum temperature
+# #Vapor Phase 2
 # rhoA = 53.3211615
 # rhouA = 159.9634846
 # rhoEA = 214000587.2844800
+
+#teste
+rhoA = 1945.46
+rhouA = 5836.38
+rhoEA = 7.01901e+08
 
 [Variables]
   [A]
@@ -100,14 +105,15 @@ rhoEA = 7481976.7420194
   [fp]
     type = HEM
     fp_2phase = fp_2phase
+    temp_guess = 300
   []
 []
 [Mesh]
   type = GeneratedMesh
-  dim = 3
+  dim = 1
   nx = 1
-  ny = 1
-  nz = 1
+  # ny = 1
+  # nz = 1
   allow_renumbering = false
 []
 
@@ -125,17 +131,17 @@ rhoEA = 7481976.7420194
     v = v
     e = e
     mu = mu
-    p = p
-    T = T
     alpha = alpha
     fp_hem = fp
+    T = T
+    p = p
   []
 []
 
 [Problem]
   solve = false
-  # register_objects_from = 'IAPWS95App'
-  # library_path = '/Users/aldelc/projects/bison_INL_desktop/iapws95/lib'
+  # register_objects_from = 'ThermalHydraulicsApp'
+  # library_path = '/Users/aldelc/projects/moose/modules/thermal_hydraulics/lib'
 []
 
 [Executioner]
@@ -179,17 +185,21 @@ rhoEA = 7481976.7420194
     type = ADElementAverageMaterialProperty
     mat_prop = mu
   []
-  [a_alpha]
-    type = ADElementAverageMaterialProperty
-    mat_prop = alpha
-  []
-  [k_press]
+  [j_p]
     type = ADElementAverageMaterialProperty
     mat_prop = p
   []
-  [l_temp]
+  [k_T]
     type = ADElementAverageMaterialProperty
     mat_prop = T
+  []
+  # [l_vel]
+  #   type = ADElementAverageMaterialProperty
+  #   mat_prop = vel
+  # []
+  [z_alpha]
+    type = ADElementAverageMaterialProperty
+    mat_prop = alpha
   []
 []
 

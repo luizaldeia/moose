@@ -11,6 +11,9 @@
 #include "FlowModelSinglePhase.h"
 #include "FlowChannel1Phase.h"
 #include "HeatTransfer1PhaseBase.h"
+#include "FlowModelHEM.h"
+#include "FlowChannelHEM.h"
+#include "HeatTransferHEMBase.h"
 
 registerMooseObject("ThermalHydraulicsApp", Closures1PhaseTHM);
 
@@ -36,6 +39,10 @@ Closures1PhaseTHM::Closures1PhaseTHM(const InputParameters & params)
     _wall_ff_closure(getParam<MooseEnum>("wall_ff_closure").getEnum<WallFFClosureType>())
 {
 }
+
+// ==============================================================================
+//                             Single phase flow model
+// ==============================================================================
 
 void
 Closures1PhaseTHM::checkFlowChannel(const FlowChannelBase & /*flow_channel*/) const
